@@ -34,6 +34,9 @@ if "messages" not in st.session_state:
 # -------------------------------
 question = st.text_input("Ask me Anything")
 
+# Toggle to show retrieved context
+show_context = st.checkbox("Show Retrieved Context")
+
 if question:
     # Store user message
     st.session_state.messages.append(
@@ -49,6 +52,9 @@ if question:
         end_time = time.time()
         latency = round(end_time - start_time, 2)
 
+        # Retrieve documents manually for transparency
+        retrieved_docs = qa_chain.retriever.get_relevant_documents(question)
+
     # Store assistant response
     st.session_state.messages.append(
         {"role": "assistant", "content": answer}
@@ -56,6 +62,13 @@ if question:
 
     # Show latency
     st.caption(f"⏱️ Response time: {latency} seconds")
+
+    # Show retrieved context if enabled
+    if show_context:
+        st.subheader("Retrieved Context")
+        for i, doc in enumerate(retrieved_docs):
+            st.markdown(f"**Chunk {i+1}:**")
+            st.write(doc.page_content)
 
 # -------------------------------
 # Display Conversation (Last 10)
